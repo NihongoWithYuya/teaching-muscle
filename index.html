@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#050606">
+<title>Teaching Muscle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: dark;
+  --fs:1;
+  --page:#050606; --nav:#080909; --surface:#121212; --surface2:#171717;
+  --ink:#F2F2F2; --ink2:#A6A6A6; --muted:#777777;
+  --grid:#242424; --axis:#3a3a3a; --border:#242424; --border-sub:#1A1A1A;
+  --accent:#FFB74D; --accent-hov:#FFA726; --accent-sub:#221A06;
+  --good:#64FF6A; --bad:#FF174D; --warn:#FFF59C;
+  --c1:#3987e5; --c2:#199e70; --c3:#c98500; --c4:#008300; --c5:#9085e9; --c6:#e66767; --c7:#d55181; --c8:#d95926;
+  --font-display:"Space Grotesk","DM Sans","Hiragino Sans",sans-serif;
+  --sidew:288px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans","Hiragino Sans","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+  background:var(--page);color:var(--ink);font-size:calc(22px * var(--fs));
+  -webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;transition:all .15s ease-out}
+a{color:var(--accent)}
+/* ===== layout: sidebar + main ===== */
+#side{position:fixed;left:0;top:0;bottom:0;width:var(--sidew);z-index:40;
+  background:var(--nav);border-right:1px solid var(--border-sub);
+  display:flex;flex-direction:column;padding:22px 14px calc(16px + env(safe-area-inset-bottom));overflow-y:auto}
+#side .brand{display:flex;align-items:center;gap:12px;padding:2px 8px 22px}
+#side h1{font-family:var(--font-display);font-size:calc(20px * var(--fs));font-weight:700;letter-spacing:.04em;line-height:1.15}
+#side h1 span{color:var(--accent)}
+#side .sub2{font-size:calc(11px * var(--fs));color:var(--muted);letter-spacing:.22em;margin-top:4px;font-weight:500}
+#side nav{display:flex;flex-direction:column;gap:3px}
+#side nav button{display:flex;align-items:center;gap:13px;padding:14px 14px;border-radius:12px;
+  color:var(--ink2);font-size:calc(19px * var(--fs));font-weight:500;text-align:left;border-left:3px solid transparent}
+#side nav button .ico{font-size:calc(22px * var(--fs));line-height:1;filter:grayscale(1) opacity(.55);width:26px;text-align:center}
+#side nav button:hover{background:var(--surface)}
+#side nav button.on{background:var(--accent-sub);color:var(--accent);font-weight:700;border-left-color:var(--accent)}
+#side nav button.on .ico{filter:none}
+#side .foot{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding:14px 4px 0}
+#langBtn{display:flex;align-items:center;gap:9px;justify-content:center;padding:13px;border-radius:12px;
+  border:1px solid var(--grid);background:var(--surface);font-size:calc(18px * var(--fs));font-weight:600;color:var(--ink2)}
+#langBtn:hover{color:var(--accent);border-color:var(--accent)}
+#genAt{font-size:calc(14px * var(--fs));color:var(--muted);text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.06em}
+#scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:30;display:none}
+.main{margin-left:var(--sidew)}
+.wrap{max-width:1000px;margin:0 auto;padding:26px 28px 70px}
+header.mob{display:none}
+@media (max-width:900px){
+  :root{--fs:0.8}
+  #side{transform:translateX(-100%);transition:transform .22s ease-out;box-shadow:8px 0 32px rgba(0,0,0,.5)}
+  #side.open{transform:translateX(0)}
+  #scrim.show{display:block}
+  .main{margin-left:0}
+  .wrap{padding:16px 15px 70px}
+  header.mob{display:flex;align-items:center;gap:13px;position:sticky;top:0;z-index:20;
+    background:rgba(5,6,6,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-sub);
+    padding:13px 15px;padding-top:calc(13px + env(safe-area-inset-top))}
+  header.mob .burger{font-size:calc(26px * var(--fs));padding:3px 10px;border:1px solid var(--grid);border-radius:10px;background:var(--surface)}
+  header.mob .t{font-family:var(--font-display);font-size:calc(19px * var(--fs));font-weight:700;letter-spacing:.05em}
+  header.mob .t span{color:var(--accent)}
+  header.mob .chip{margin-left:auto;font-size:calc(14px * var(--fs));color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-variant-numeric:tabular-nums}
+}
+/* --- status banner --- */
+.status-banner{display:flex;align-items:center;gap:14px;padding:15px 17px;border-radius:14px;
+  background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);margin-bottom:16px;font-size:calc(19px * var(--fs))}
+.status-banner.run{border-left-color:var(--warn)}
+.status-banner.err{border-left-color:var(--bad)}
+.status-banner .st-ico{font-size:calc(26px * var(--fs))}
+.status-banner .st-msg{font-weight:600}
+.status-banner .st-sub{font-size:calc(15px * var(--fs));color:var(--muted);margin-top:3px}
+/* --- cards --- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+.card h2{font-size:calc(16px * var(--fs));font-weight:600;color:var(--muted);letter-spacing:.1em;margin-bottom:14px}
+/* --- lock screen --- */
+#lock{max-width:420px;margin:18vh auto 0;text-align:center;padding:26px}
+#lock h1{font-family:var(--font-display);font-size:calc(26px * var(--fs));letter-spacing:.05em;margin-bottom:6px}
+#lock p{font-size:calc(17px * var(--fs));color:var(--muted);margin-bottom:24px;letter-spacing:.05em}
+#lock input{width:100%;padding:16px;border:1px solid var(--grid);border-radius:12px;font-size:calc(22px * var(--fs));
+  background:var(--surface);color:var(--ink);text-align:center;outline:none}
+#lock input:focus{border-color:var(--accent)}
+#lock button{width:100%;margin-top:12px;padding:16px;border-radius:12px;background:var(--accent);color:#050606;font-weight:700;font-size:calc(20px * var(--fs))}
+#lockErr{color:var(--bad);font-size:calc(18px * var(--fs));margin-top:14px;min-height:1em}
+/* --- stat tiles --- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:14px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+.tile .lbl{font-size:calc(14px * var(--fs));color:var(--muted);margin-bottom:8px;letter-spacing:.12em;font-weight:500}
+.tile .val{font-family:var(--font-display);font-size:calc(30px * var(--fs));font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.tile .val small{font-size:calc(17px * var(--fs));font-weight:500;color:var(--muted);font-family:"DM Sans","Hiragino Sans",sans-serif}
+/* --- lists / badges --- */
+.repeat li{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--border-sub);list-style:none;font-size:calc(20px * var(--fs))}
+.repeat li:last-child{border-bottom:none}
+.badge{min-width:52px;text-align:center;font-size:calc(16px * var(--fs));font-weight:700;border-radius:8px;padding:5px 11px;
+  background:var(--bad);color:#fff;font-variant-numeric:tabular-nums}
+.badge.low{background:var(--surface2);border:1px solid var(--grid);color:var(--ink2)}
+.repeat .cat{font-size:calc(15px * var(--fs));color:var(--muted);margin-left:auto;white-space:nowrap}
+.tag{display:inline-block;font-size:calc(14px * var(--fs));font-weight:700;letter-spacing:.06em;border-radius:7px;padding:4px 11px;margin-right:10px;vertical-align:2px}
+.tag.hot{background:#2b0a12;color:var(--bad);border:1px solid #4d1120}
+.tag.amber{background:var(--accent-sub);color:var(--accent);border:1px solid #3d2e0a}
+.tag.dim{background:var(--surface2);color:var(--muted);border:1px solid var(--grid)}
+/* --- phrases (code switch) cards --- */
+.cs-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:12px}
+.cs-meta{display:flex;align-items:center;gap:10px;font-size:calc(14px * var(--fs));color:var(--muted);margin-bottom:10px;letter-spacing:.05em}
+.cs-context{font-size:calc(16px * var(--fs));color:var(--ink2)}
+.cs-ja{font-size:calc(18px * var(--fs));color:var(--muted);margin:8px 0 4px}
+.cs-ja::before{content:"🗾 ";opacity:.7}
+.cs-en{display:flex;align-items:flex-start;gap:10px;font-family:var(--font-display);font-size:calc(24px * var(--fs));font-weight:700;line-height:1.45;margin:6px 0}
+.cs-en button{font-size:calc(24px * var(--fs));padding:0 4px;flex:none}
+.cs-alt{font-size:calc(17px * var(--fs));color:var(--ink2);margin:3px 0 3px 8px;line-height:1.6}
+.cs-alt::before{content:"↳ ";color:var(--muted)}
+.cs-why{font-size:calc(15px * var(--fs));color:var(--muted);margin-top:8px;line-height:1.7}
+/* --- mistakes detail --- */
+.mi-item{padding:14px 0;border-bottom:1px solid var(--border-sub)}
+.mi-item:last-child{border-bottom:none}
+.mi-orig{font-size:calc(18px * var(--fs));color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(255,23,77,.55)}
+.mi-corr{display:flex;align-items:flex-start;gap:8px;font-family:var(--font-display);font-size:calc(21px * var(--fs));font-weight:700;margin-top:4px;line-height:1.5}
+.mi-corr button{font-size:calc(20px * var(--fs));padding:0 3px;flex:none}
+.mi-better{display:flex;align-items:flex-start;gap:8px;font-size:calc(18px * var(--fs));color:var(--accent);margin-top:3px;line-height:1.6}
+.mi-better button{font-size:calc(18px * var(--fs));padding:0 3px;flex:none}
+.mi-why{font-size:calc(15px * var(--fs));color:var(--muted);margin-top:6px;line-height:1.7}
+/* --- filter chips --- */
+.datebar{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;margin-bottom:10px}
+.datebar button{white-space:nowrap;padding:9px 18px;border-radius:999px;border:1px solid var(--grid);font-size:calc(18px * var(--fs));
+  color:var(--ink2);font-variant-numeric:tabular-nums;background:var(--surface)}
+.datebar button.on{background:var(--accent);border-color:var(--accent);color:#050606;font-weight:700}
+/* --- charts / tooltip --- */
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px}
+.legend span{display:flex;align-items:center;gap:8px;font-size:calc(16px * var(--fs));color:var(--ink2)}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.chart{width:100%;overflow-x:auto}
+.chart svg{display:block}
+.chart text{font-family:"DM Sans",sans-serif}
+#tooltip{position:fixed;z-index:50;pointer-events:none;background:var(--surface2);border:1px solid var(--grid);
+  border-radius:10px;padding:11px 14px;font-size:calc(18px * var(--fs));box-shadow:0 8px 24px rgba(0,0,0,.5);display:none;max-width:320px}
+#tooltip .tt-title{font-weight:600;margin-bottom:5px}
+#tooltip .tt-row{display:flex;align-items:center;gap:8px;color:var(--ink2)}
+#tooltip .tt-row i{width:11px;height:11px;border-radius:3px;display:inline-block}
+#tooltip .tt-row b{margin-left:auto;color:var(--ink);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-size:calc(19px * var(--fs));text-align:center;padding:32px 10px;line-height:1.9}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="lock">
+  <h1>TEACHING <span style="color:var(--accent)">MUSCLE</span></h1>
+  <p id="lockSub">CLASSROOM ENGLISH · PRIVATE</p>
+  <input id="pass" type="password" autocomplete="current-password" placeholder="passphrase">
+  <button id="unlock">Unlock</button>
+  <div id="lockErr"></div>
+</div>
+
+<div id="app" class="hidden">
+  <div id="scrim"></div>
+  <aside id="side">
+    <div class="brand">
+      <div><h1>TEACHING <span>MUSCLE</span></h1><div class="sub2">CLASSROOM ENGLISH</div></div>
+    </div>
+    <nav>
+      <button data-tab="phrases" class="on"><span class="ico">🗣</span><span class="lbl"></span></button>
+      <button data-tab="mistakes"><span class="ico">📝</span><span class="lbl"></span></button>
+      <button data-tab="home"><span class="ico">📊</span><span class="lbl"></span></button>
+    </nav>
+    <div class="foot">
+      <button id="langBtn">🌐 <span id="langLbl">English</span></button>
+      <div id="genAt"></div>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="mob">
+      <button class="burger" id="burger">☰</button>
+      <span class="t">TEACHING <span>MUSCLE</span></span>
+      <span class="chip" id="genAtM"></span>
+    </header>
+    <div class="wrap"><main id="view"></main></div>
+  </div>
+</div>
+<div id="tooltip"></div>
+
+<script>
+"use strict";
+const ENCRYPTED = "{\"salt\":\"yAXWkZdna4fgwGg+4VTQcQ==\",\"iv\":\"yc+oRYrJNRZ69cKB\",\"ct\":\"7Qf8UdTXhIYgGwkgkQYyhhualtND2r5b4z/jAt2g4TQ1BMa++qgkzHSCJ7nfKRfSG1f3pyL18e+lM0fSzdWIOlCMGz3keWuelgRRfFvloY9z61M=\"}";
+let DB = null;
+let LANG = localStorage.getItem("tm-lang") || "ja";
+let currentTab = "phrases";
+
+/* ============ i18n ============ */
+const I18N = {
+  ja: {
+    navPhrases:"言えなかった表現", navMistakes:"ミス", navHome:"概要",
+    langBtn:"English", updated:"更新",
+    lockBtn:"開く", lockErr:"パスフレーズが違います",
+    noData:"まだデータがありません。日本語レッスンの解析が終わると自動でここに届きます。",
+    csTitle:"🗣 日本語でごまかした場面 → 英語でこう言う",
+    csEmpty:"コードスイッチはありませんでした 🎉",
+    tpTitle:"🧰 使えるクラスルーム英語",
+    filterAll:"全て",
+    timesSuffix:"回目",
+    miRecurring:"⚠️ 繰り返しているミス", miByLesson:"レッスン別のミス詳細",
+    noAccum:"まだ蓄積データがありません", noMistakes:"ミスなし 🎉",
+    latestLesson:"LATEST LESSON",
+    tileMistakes:"MISTAKES", tileCs:"CODE-SWITCH", tileTalk:"TEACHER TALK",
+    uItems:"件", uMin:"分",
+    trend:"ミス・コードスイッチの推移", sMistake:"ミス", sCs:"言えなかった表現",
+    top5:"⚠️ 繰り返し TOP5", advice:"💡 次回のレッスンで意識すること",
+    stOk:"レッスン後は何もしなくてOK。毎晩3時に自動でここに結果が届きます",
+    stRun:"解析が進行中です。しばらくしてから再読み込みしてください",
+    stErr:"Macの AI_projects/teaching-muscle-data/logs/ を確認してください",
+    cats:{"冠詞":"冠詞","時制":"時制","前置詞":"前置詞","語彙選択":"語彙選択","語順":"語順","複数形":"複数形","直訳":"直訳","その他":"その他","言えなかった表現":"言えなかった表現"},
+  },
+  en: {
+    navPhrases:"Phrases I Needed", navMistakes:"Mistakes", navHome:"Overview",
+    langBtn:"日本語", updated:"Updated",
+    lockBtn:"Unlock", lockErr:"Wrong passphrase",
+    noData:"No data yet. Results arrive here automatically after your Japanese lessons are analyzed.",
+    csTitle:"🗣 WHERE I ESCAPED INTO JAPANESE → SAY IT IN ENGLISH",
+    csEmpty:"No code-switches 🎉",
+    tpTitle:"🧰 CLASSROOM ENGLISH TO REUSE",
+    filterAll:"All",
+    timesSuffix:"×",
+    miRecurring:"⚠️ RECURRING MISTAKES", miByLesson:"MISTAKES BY LESSON",
+    noAccum:"No data accumulated yet", noMistakes:"No mistakes 🎉",
+    latestLesson:"LATEST LESSON",
+    tileMistakes:"MISTAKES", tileCs:"CODE-SWITCH", tileTalk:"TEACHER TALK",
+    uItems:"", uMin:"min",
+    trend:"MISTAKES & CODE-SWITCHES OVER TIME", sMistake:"mistakes", sCs:"code-switches",
+    top5:"⚠️ TOP 5 RECURRING", advice:"💡 FOCUS FOR YOUR NEXT LESSON",
+    stOk:"Nothing to do after lessons — results arrive here automatically at 3 AM",
+    stRun:"Analysis in progress. Reload this page later",
+    stErr:"Check AI_projects/teaching-muscle-data/logs/ on your Mac",
+    cats:{"冠詞":"Articles","時制":"Tense","前置詞":"Prepositions","語彙選択":"Word choice","語順":"Word order","複数形":"Plurals","直訳":"Literal transl.","その他":"Other","言えなかった表現":"Couldn't say it"},
+  },
+};
+const t = k => I18N[LANG][k] ?? I18N.ja[k] ?? k;
+const catName = c => I18N[LANG].cats[c] || c;
+const pick = (obj, base) => (LANG === "en" && obj && obj[base + "En"]) ? obj[base + "En"] : (obj ? obj[base] : undefined);
+
+/* ============ 復号 ============ */
+const b64d = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function decrypt(passphrase){
+  const blob = JSON.parse(ENCRYPTED);
+  const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(passphrase), "PBKDF2", false, ["deriveKey"]);
+  const key = await crypto.subtle.deriveKey(
+    {name:"PBKDF2", salt:b64d(blob.salt), iterations:250000, hash:"SHA-256"},
+    km, {name:"AES-GCM", length:256}, false, ["decrypt"]);
+  const pt = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64d(blob.iv)}, key, b64d(blob.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+async function tryUnlock(passphrase, silent){
+  const err = document.getElementById("lockErr");
+  try{
+    document.getElementById("unlock").textContent = "...";
+    DB = await decrypt(passphrase);
+    localStorage.setItem("tm-pass", passphrase);
+    document.getElementById("lock").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+    boot();
+  }catch(e){
+    document.getElementById("unlock").textContent = t("lockBtn");
+    if(!silent) err.textContent = t("lockErr");
+    localStorage.removeItem("tm-pass");
+  }
+}
+document.getElementById("unlock").textContent = t("lockBtn");
+document.getElementById("unlock").onclick = () => tryUnlock(document.getElementById("pass").value);
+document.getElementById("pass").addEventListener("keydown", e => { if(e.key === "Enter") tryUnlock(e.target.value); });
+if(ENCRYPTED === "__ENCRYPTED_PAYLOAD__"){
+  document.getElementById("lockErr").textContent = "（未ビルドのテンプレートです。build_dashboard.mjs を実行してください）";
+}else{
+  const saved = localStorage.getItem("tm-pass");
+  if(saved) tryUnlock(saved, true);
+}
+
+/* ============ 共通ヘルパー ============ */
+const CATS = ["冠詞","時制","前置詞","語彙選択","語順","複数形","直訳","その他"];
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const el = (tag, cls, html) => { const n = document.createElement(tag); if(cls) n.className = cls; if(html != null) n.innerHTML = html; return n; };
+const shortDate = d => (d || "").slice(5).replace("-","/");
+const lessons = () => (DB.lessons || []).slice().sort((a,b) => a.lessonId < b.lessonId ? -1 : 1);
+const recurCount = key => DB.mistakes?.[key]?.count || 0;
+
+/* 音声: 事前生成クリップ（base64埋め込み）だけ再生する。ブラウザ内蔵TTSは使わない。 */
+let clipPlayer = null;
+function play(audioDataUri){
+  if(!audioDataUri) return;
+  if(clipPlayer) clipPlayer.pause();
+  clipPlayer = new Audio(audioDataUri);
+  clipPlayer.play();
+}
+function playBtn(audio, big){
+  if(!audio) return null;
+  const b = el("button", "", "🎧");
+  b.setAttribute("aria-label", "play");
+  b.onclick = e => { e.stopPropagation(); play(audio); };
+  return b;
+}
+
+/* ---- tooltip ---- */
+const tt = document.getElementById("tooltip");
+function showTT(html, x, y){
+  tt.innerHTML = html; tt.style.display = "block";
+  const r = tt.getBoundingClientRect();
+  tt.style.left = Math.min(Math.max(6, x - r.width/2), innerWidth - r.width - 6) + "px";
+  tt.style.top = (y - r.height - 12 < 6 ? y + 16 : y - r.height - 12) + "px";
+}
+function hideTT(){ tt.style.display = "none"; }
+document.addEventListener("scroll", hideTT, true);
+
+/* ============ SVGチャート（折れ線） ============ */
+const NS = "http://www.w3.org/2000/svg";
+const CHF = 14;
+function svgEl(tag, attrs){ const n = document.createElementNS(NS, tag); for(const k in attrs) n.setAttribute(k, attrs[k]); return n; }
+function lineChart(labels, series, unit){
+  const pad = {l:50, r:16, t:14, b:28}, w = Math.max(380, labels.length*52 + pad.l + pad.r), h = 240;
+  const yMax = Math.ceil(Math.max(4, ...series.flatMap(s => s.values.filter(v => v != null))) * 1.15);
+  const svg = svgEl("svg", {viewBox:`0 0 ${w} ${h}`, width:"100%"});
+  const plotW = w - pad.l - pad.r, plotH = h - pad.t - pad.b;
+  const yTicks = yMax <= 5 ? yMax : 4;
+  for(let i = 0; i <= yTicks; i++){
+    const v = yMax * i / yTicks, y = pad.t + plotH - plotH * i / yTicks;
+    if(i > 0) svg.appendChild(svgEl("line", {x1:pad.l, x2:pad.l+plotW, y1:y, y2:y, stroke:css("--grid"), "stroke-width":1}));
+    const lbl = svgEl("text", {x:pad.l-8, y:y+5, "text-anchor":"end", "font-size":CHF, fill:css("--muted")});
+    lbl.textContent = Math.round(v); svg.appendChild(lbl);
+  }
+  svg.appendChild(svgEl("line", {x1:pad.l, x2:pad.l+plotW, y1:pad.t+plotH, y2:pad.t+plotH, stroke:css("--axis"), "stroke-width":1}));
+  const xs = i => pad.l + (labels.length === 1 ? plotW/2 : plotW * i / (labels.length-1));
+  const ys = v => pad.t + plotH - plotH * v / yMax;
+  series.forEach(s => {
+    const pts = s.values.map((v,i) => v == null ? null : [xs(i), ys(v)]).filter(Boolean);
+    if(pts.length > 1)
+      svg.appendChild(svgEl("path", {d:"M" + pts.map(p => p.join(",")).join("L"), fill:"none", stroke:s.color, "stroke-width":2.5, "stroke-linejoin":"round"}));
+    pts.forEach(p => svg.appendChild(svgEl("circle", {cx:p[0], cy:p[1], r:5, fill:s.color, stroke:css("--surface"), "stroke-width":2})));
+  });
+  labels.forEach((l, i) => {
+    const hit = svgEl("rect", {x:xs(i)-plotW/Math.max(labels.length,1)/2, y:pad.t, width:plotW/Math.max(labels.length,1), height:plotH, fill:"transparent"});
+    hit.addEventListener("pointermove", e => {
+      const rows = series.map(s => s.values[i] == null ? "" :
+        `<div class="tt-row"><i style="background:${s.color}"></i>${esc(s.name)}<b>${s.values[i]}${unit||""}</b></div>`).join("");
+      showTT(`<div class="tt-title">${esc(l)}</div>${rows}`, e.clientX, e.clientY);
+    });
+    hit.addEventListener("pointerleave", hideTT);
+    svg.appendChild(hit);
+  });
+  const step = Math.ceil(labels.length / 8);
+  labels.forEach((l, i) => {
+    if(i % step) return;
+    const t2 = svgEl("text", {x:xs(i), y:h-8, "text-anchor":"middle", "font-size":CHF, fill:css("--muted")});
+    t2.textContent = l; svg.appendChild(t2);
+  });
+  return svg;
+}
+function legendFor(names, colors){
+  const lg = el("div", "legend");
+  names.forEach((n,i) => { const s = el("span"); s.innerHTML = `<i style="background:${colors[i]}"></i>${esc(n)}`; lg.appendChild(s); });
+  return lg;
+}
+
+/* ============ ナビ・言語 ============ */
+const view = document.getElementById("view");
+const RENDER = {phrases:renderPhrases, mistakes:renderMistakes, home:renderHome};
+const side = document.getElementById("side");
+const scrim = document.getElementById("scrim");
+function closeDrawer(){ side.classList.remove("open"); scrim.classList.remove("show"); }
+document.getElementById("burger").onclick = () => { side.classList.add("open"); scrim.classList.add("show"); };
+scrim.onclick = closeDrawer;
+document.querySelectorAll("#side nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#side nav button").forEach(x => x.classList.toggle("on", x === b));
+  currentTab = b.dataset.tab;
+  hideTT(); closeDrawer(); view.innerHTML = ""; RENDER[currentTab]();
+});
+function applyLang(){
+  const keys = {phrases:"navPhrases", mistakes:"navMistakes", home:"navHome"};
+  document.querySelectorAll("#side nav button").forEach(b => b.querySelector(".lbl").textContent = t(keys[b.dataset.tab]));
+  document.getElementById("langLbl").textContent = t("langBtn");
+  document.getElementById("genAt").textContent = t("updated") + " " + (DB?.generated || "").slice(0,10);
+  document.getElementById("genAtM").textContent = (DB?.generated || "").slice(5,10).replace("-","/");
+  document.documentElement.lang = LANG;
+}
+document.getElementById("langBtn").onclick = () => {
+  LANG = LANG === "ja" ? "en" : "ja";
+  localStorage.setItem("tm-lang", LANG);
+  applyLang();
+  view.innerHTML = ""; RENDER[currentTab]();
+};
+function boot(){
+  applyLang();
+  renderPhrases();
+}
+
+/* ============ 言えなかった表現（デフォルトタブ） ============ */
+function recurBadge(key){
+  const n = recurCount(key);
+  if(n < 2) return "";
+  return `<span class="badge" style="min-width:auto">×${n}</span>`;
+}
+function renderPhrases(){
+  const ls = lessons();
+  if(!ls.length){ view.appendChild(el("div","card",`<div class='empty'>${t("noData")}</div>`)); return; }
+
+  const title = el("div","card",`<h2>${t("csTitle")}</h2>`);
+  view.appendChild(title);
+
+  let any = false;
+  ls.slice().reverse().forEach(l => {
+    (l.codeSwitches || []).forEach(cs => {
+      any = true;
+      const c = el("div","cs-card");
+      c.innerHTML = `<div class="cs-meta"><span>${esc(shortDate(l.date))}</span>${recurBadge(cs.recurrenceKey)}<span class="cs-context">${esc(cs.context || "")}</span></div>`;
+      if(cs.japaneseSaid) c.appendChild(el("div","cs-ja",esc(cs.japaneseSaid)));
+      const en = el("div","cs-en");
+      const pb = playBtn(cs.audio);
+      if(pb) en.appendChild(pb);
+      en.appendChild(el("span","",esc(cs.englishNeeded)));
+      c.appendChild(en);
+      (cs.alternatives || []).forEach(a => c.appendChild(el("div","cs-alt",esc(a))));
+      if(cs.explanation) c.appendChild(el("div","cs-why",esc(cs.explanation)));
+      view.appendChild(c);
+    });
+  });
+  if(!any) title.appendChild(el("div","empty",t("csEmpty")));
+
+  // クラスルーム英語（軽い追加提案）
+  const phrases = ls.slice().reverse().flatMap(l => (l.teachingPhrases || []).map(p => ({...p, date:l.date})));
+  if(phrases.length){
+    const c = el("div","card",`<h2>${t("tpTitle")}</h2>`);
+    phrases.slice(0,12).forEach(p => {
+      const row = el("div","mi-item");
+      const en = el("div","mi-corr");
+      const pb = playBtn(p.audio);
+      if(pb) en.appendChild(pb);
+      en.appendChild(el("span","",esc(p.phrase)));
+      row.appendChild(en);
+      if(p.situation) row.appendChild(el("div","mi-why",esc(p.situation) + ` <span style="opacity:.6">· ${esc(shortDate(p.date))}</span>`));
+      c.appendChild(row);
+    });
+    view.appendChild(c);
+  }
+}
+
+/* ============ ミス ============ */
+function renderMistakes(){
+  const ls = lessons();
+  if(!ls.length){ view.appendChild(el("div","card",`<div class='empty'>${t("noData")}</div>`)); return; }
+
+  // 累積（繰り返し）
+  const rep = el("div","card",`<h2>${t("miRecurring")}</h2>`);
+  const top = Object.values(DB.mistakes || {}).sort((a,b) => b.count - a.count).slice(0,8);
+  if(top.length){
+    const ul = el("ul","repeat");
+    top.forEach(mi => {
+      const li = el("li");
+      li.innerHTML = `<span class="badge ${mi.count < 2 ? "low" : ""}">×${mi.count}</span>
+        <div><div>${esc(pick(mi, "label"))}</div>
+        <div style="font-size:calc(15px * var(--fs));color:var(--muted)">${esc((mi.examples||[])[0] || "")}</div></div>
+        <span class="cat">${esc(catName(mi.category))} · ${esc(shortDate(mi.lastSeen||""))}</span>`;
+      ul.appendChild(li);
+    });
+    rep.appendChild(ul);
+  } else rep.appendChild(el("div","empty",t("noAccum")));
+  view.appendChild(rep);
+
+  // レッスン別詳細
+  ls.slice().reverse().forEach(l => {
+    const c = el("div","card",`<h2>${esc(l.date)} · ${esc((l.mistakes||[]).length)}${t("uItems")}</h2>`);
+    if(!(l.mistakes||[]).length){ c.appendChild(el("div","empty",t("noMistakes"))); view.appendChild(c); return; }
+    (l.mistakes||[]).forEach(m => {
+      const it = el("div","mi-item");
+      it.innerHTML = `<span class="tag ${CATS.includes(m.category) ? "dim" : "amber"}">${esc(catName(m.category))}</span><span class="mi-orig">${esc(m.original)}</span>`;
+      const corr = el("div","mi-corr");
+      const pb = playBtn(m.correctedAudio);
+      if(pb) corr.appendChild(pb);
+      corr.appendChild(el("span","","✅ " + esc(m.corrected)));
+      it.appendChild(corr);
+      if(m.better && m.better !== m.corrected){
+        const bt = el("div","mi-better");
+        const pb2 = playBtn(m.betterAudio);
+        if(pb2) bt.appendChild(pb2);
+        bt.appendChild(el("span","","✨ " + esc(m.better)));
+        it.appendChild(bt);
+      }
+      if(m.explanation) it.appendChild(el("div","mi-why",esc(m.explanation)));
+      c.appendChild(it);
+    });
+    view.appendChild(c);
+  });
+}
+
+/* ============ 概要 ============ */
+function tile(lbl, val, unit){
+  const t2 = el("div", "tile");
+  t2.innerHTML = `<div class="lbl">${esc(lbl)}</div><div class="val">${esc(val)}<small> ${unit||""}</small></div>`;
+  return t2;
+}
+function statusBanner(){
+  const s = DB.status;
+  if(!s) return null;
+  const icons = {ok:"🤖", running:"⏳", error:"⚠️"};
+  const subs = {ok:t("stOk"), running:t("stRun"), error:t("stErr")};
+  const cls = s.state === "error" ? " err" : (s.state === "running" ? " run" : "");
+  const b = el("div", "status-banner" + cls);
+  b.innerHTML = `<span class="st-ico">${icons[s.state] || "ℹ️"}</span>
+    <div><div class="st-msg">${esc(pick(s, "message"))}</div>
+    <div class="st-sub">${esc(s.time || "")} · ${subs[s.state] || ""}</div></div>`;
+  return b;
+}
+function renderHome(){
+  const ls = lessons();
+  const sb = statusBanner();
+  if(sb) view.appendChild(sb);
+  if(!ls.length){ view.appendChild(el("div","card",`<div class='empty'>${t("noData")}</div>`)); return; }
+  const cur = ls[ls.length-1];
+
+  const head = el("div", "card");
+  head.innerHTML = `<h2>${t("latestLesson")} · ${esc(cur.date)}</h2>
+    <div style="font-size:calc(20px * var(--fs));line-height:1.75">${esc(pick(cur, "summary") || "")}</div>`;
+  view.appendChild(head);
+
+  const m = cur.metrics || {};
+  const tiles = el("div", "tiles");
+  tiles.appendChild(tile(t("tileMistakes"), m.mistakeCount ?? (cur.mistakes||[]).length, t("uItems")));
+  tiles.appendChild(tile(t("tileCs"), m.codeSwitchCount ?? (cur.codeSwitches||[]).length, t("uItems")));
+  if(m.teacherTalkSec) tiles.appendChild(tile(t("tileTalk"), Math.round(m.teacherTalkSec/60), t("uMin")));
+  view.appendChild(tiles);
+
+  const trend = el("div", "card", `<h2>${t("trend")}</h2>`);
+  const last = ls.slice(-10);
+  const cw = el("div", "chart");
+  cw.appendChild(lineChart(
+    last.map(l => shortDate(l.date)),
+    [
+      {name:t("sMistake"), color:css("--c6"), values:last.map(l => l.metrics?.mistakeCount ?? (l.mistakes||[]).length)},
+      {name:t("sCs"), color:css("--accent"), values:last.map(l => l.metrics?.codeSwitchCount ?? (l.codeSwitches||[]).length)},
+    ]));
+  trend.appendChild(cw);
+  trend.appendChild(legendFor([t("sMistake"), t("sCs")], [css("--c6"), css("--accent")]));
+  view.appendChild(trend);
+
+  const rep = el("div", "card", `<h2>${t("top5")}</h2>`);
+  const top = Object.values(DB.mistakes || {}).sort((a,b) => b.count - a.count).slice(0,5);
+  if(top.length){
+    const ul = el("ul", "repeat");
+    top.forEach(mi => {
+      const li = el("li");
+      li.innerHTML = `<span class="badge ${mi.count < 2 ? "low" : ""}">×${mi.count}</span>
+        <span>${esc(pick(mi, "label"))}</span><span class="cat">${esc(catName(mi.category))} · ${esc(shortDate(mi.lastSeen||""))}</span>`;
+      ul.appendChild(li);
+    });
+    rep.appendChild(ul);
+  } else rep.appendChild(el("div","empty",t("noAccum")));
+  view.appendChild(rep);
+
+  const advice = pick(cur, "advice");
+  if(advice?.length){
+    const adv = el("div","card",`<h2>${t("advice")}</h2>`);
+    adv.appendChild(el("ul","", advice.map(a => `<li style="margin:6px 0 6px 26px;font-size:calc(20px * var(--fs));line-height:1.7">${esc(a)}</li>`).join("")));
+    view.appendChild(adv);
+  }
+}
+</script>
+</body>
+</html>
